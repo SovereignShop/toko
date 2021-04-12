@@ -1,0 +1,5 @@
+{:paths   ["src/main"]
+ :deps    {datascript/datascript {:mvn/version "1.0.7"}
+           instaparse/instaparse {:mvn/version "1.4.10"}
+           borkdude/sci          {:mvn/version "0.2.4"}}
+ :aliases {:dev {:extra-paths ["src/test"]}}}
