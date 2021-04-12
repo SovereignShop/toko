@@ -51,7 +51,7 @@ beginning of the line."
       (update :cursor/line dec)
       (assoc :cursor/column (dec (line-length (:cursor/token cursor))))))
 
-(defn- next-token
+(defn next-token
   "Moves the cursor to the next token."
   [{:keys [cursor/token] :as cursor}]
   (when-let [nxt-token (:token/next-token token)]
@@ -61,7 +61,7 @@ beginning of the line."
         true                        (assoc :cursor/token nxt-token)
         true                        (update :cursor/column + delta)))))
 
-(defn- prev-token
+(defn prev-token
   "Moves the cursor to the previous token."
   [{:keys [cursor/token] :as cursor}]
   (when-let [prv-token (:token/prev-token token)]
@@ -183,7 +183,7 @@ beginning of the line."
 
 (declare from-text)
 
-(defn- move-prev-char
+(defn move-prev-char
   [{:keys [cursor/column] :as cursor}]
   (if (zero? column)
     (move-relative cursor -1 0)
