@@ -76,21 +76,6 @@ beginning of the line."
         true                       (update :cursor/column - delta)
         (newline-token? prv-token) (prev-token-newline)))))
 
-(defn walk-file [cursor]
-  (take-while (complement nil?) (iterate next-token cursor)))
-
-(defn prev-line
-  [{:keys [cursor/token] :as cursor}]
-  (if (newline-token? token)
-    cursor
-    (recur (prev-token cursor))))
-
-(defn next-line
-  [{:keys [cursor/token] :as cursor}]
-  (if (newline-token? token)
-    cursor
-    (recur (next-token cursor))))
-
 (defn search-line-forward
   "Move the cursor forward, stoppping when it minimizes the line offset
   or get to end of file."
