@@ -1,22 +1,34 @@
 (ns toko.core
-  "Core cursor functions."
+  "Cursor-related functions. The cursor points at a token, and
+  tracks information about forms as it is moved. It essentially constintutes
+  zipper over clojure forms.
+  "
   (:require
    [toko.impl.cursor :as ic]
    [toko.utils :refer [newline-token? token-length]]
    [toko.reader :as rdr]
-   [toko.parser :refer [parse-tokens]]))
+   [toko.parser
+    :refer [parse-tokens]])
+  #?(:cljs
+     (:import [goog.string StringBuffer])))
 
-(defn- past-ch?
-  "True if cursor token is past `ch`"
-  [{:keys [cursor/column cursor/token]} ch]
-  (>= (- ch column) (token-length token)))
 
-(defn- before-ch?
-  "True if cursor is before `ch`"
-  [{:keys [cursor/column]} ch]
-  (neg? (- ch column)))
+(defn past-current-ch?
+  "True if cursor token is past `col`"
+  [{:keys [cursor/column cursor/token]} col]
+  (>= (- col column) (token-length token)))
 
-(defn- line-length
+(defn before-current-ch?
+  "True if cursor is before `col`"
+  [{:keys [cursor/column]} col]
+  (neg? (- col column)))
+
+(defn at-file-beginning?
+  "True if the cursor points at the beginning of the file."
+  [{:keys [cursor/token]}]
+  (nil? (:token/prev-token token)))
+
+(defn line-length
   "Returns the number of characters from the start of the given token to the
 beginning of the line."
   [token]
@@ -30,14 +42,14 @@ beginning of the line."
 (defn token-value [cursor]
   (-> cursor :cursor/token :token/value))
 
-(defn- next-token-newline
+(defn next-token-newline
   "Steps the cursor over a newline form."
   [cursor]
   (-> cursor
       (update :cursor/line inc)
       (assoc :cursor/column -1)))
 
-(defn- prev-token-newline
+(defn prev-token-newline
   "Steps the cursor over a newline token."
   [cursor]
   (-> cursor
@@ -64,7 +76,22 @@ beginning of the line."
         true                       (update :cursor/column - delta)
         (newline-token? prv-token) (prev-token-newline)))))
 
-(defn- search-line-forward
+(defn walk-file [cursor]
+  (take-while (complement nil?) (iterate next-token cursor)))
+
+(defn prev-line
+  [{:keys [cursor/token] :as cursor}]
+  (if (newline-token? token)
+    cursor
+    (recur (prev-token cursor))))
+
+(defn next-line
+  [{:keys [cursor/token] :as cursor}]
+  (if (newline-token? token)
+    cursor
+    (recur (next-token cursor))))
+
+(defn search-line-forward
   "Move the cursor forward, stoppping when it minimizes the line offset
   or get to end of file."
   [{:keys [cursor/line] :as cursor} target-line]
@@ -75,14 +102,14 @@ beginning of the line."
         (recur nxt target-line)
         cursor))))
 
-(defn- goto-line-beginning
+(defn goto-line-beginning
   [cursor]
   (let [nxt (prev-token cursor)]
     (if (or (nil? nxt) (newline-token? (:cursor/token nxt)))
       cursor
       (recur nxt))))
 
-(defn- search-line-backward
+(defn search-line-backward
   "Move the cursor backward, stopping when it minimizes the line offset
   or gets to beginning of file."
   [{:keys [cursor/line] :as cursor} target-line]
@@ -93,22 +120,22 @@ beginning of the line."
         (recur prev target-line)
         cursor))))
 
-(defn- search-ch-forward
+(defn search-ch-forward
   "Move cursor forward until a token is reached that minimizes the column/line offset"
   ([cursor column]
    (when cursor
-     (if (past-ch? cursor column)
+     (if (past-current-ch? cursor column)
        (let [nxt (next-token cursor)]
          (if (newline-token? (:cursor/token nxt))
            nxt
            (recur nxt column)))
        cursor))))
 
-(defn- search-ch-backward
+(defn search-ch-backward
   "Move cursor backward until at `ch` is reached."
   ([cursor column]
    (when cursor
-     (if (before-ch? cursor column)
+     (if (before-current-ch? cursor column)
        (let [prev (prev-token cursor)]
          (if (newline-token? (:cursor/token prev))
            cursor
@@ -118,15 +145,15 @@ beginning of the line."
 (defn cursor-position [cursor]
   (+ (:cursor/column cursor) (:cursor/column-offset cursor)))
 
-(defn- goto-nearest-token
+(defn goto-nearest-token
   "Search backward/forward, stoping at token nearest `column` on line."
   [cursor column]
-  (let [curs (if (past-ch? cursor column)
+  (let [curs (if (past-current-ch? cursor column)
                (or (search-ch-forward cursor column) cursor)
                (or (search-ch-backward cursor column) cursor))]
     (assoc curs :cursor/column-offset (- column (:cursor/column curs)))))
 
-(defn- goto-line
+(defn goto-line
   "move cursor to line nearest `target-line`."
   [{:keys [cursor/line] :as cursor} target-line]
   (let [line-offset (- target-line line)]
@@ -134,9 +161,16 @@ beginning of the line."
           (pos? line-offset)  (search-line-forward cursor target-line)
           :else               (search-line-backward cursor target-line))))
 
-(defn- splice [^String s n ^String x]
+(defn goto-file-beginning
+  "Move cursor to start of file."
+  [cursor]
+  (if (at-file-beginning? cursor)
+    cursor
+    (recur (prev-token cursor))))
+
+(defn- splice [s n x]
   #?(:cljs (str (.slice s 0 n) x (.slice s n))
-     :clj (str (.substring s 0 n) x  (.substring s n))))
+     :clj (str (.substring s 0 n) x (.substring s n))))
 
 (defn move-relative
   [{:keys [cursor/line cursor/column cursor/column-offset] :as cursor} line-delta col-delta]
@@ -145,6 +179,12 @@ beginning of the line."
     (-> cursor
         (goto-line target-line)
         (goto-nearest-token target-col))))
+
+(defn move-prev-char
+  [{:keys [cursor/column cursor/column-offset cursor/line] :as cursor}]
+  (if (zero? column)
+    (move-relative cursor -1 0)
+    (move-relative cursor 0 -1)))
 
 (defn move
   "Move cursor to `line`, `ch`."
@@ -175,12 +215,6 @@ beginning of the line."
   (:cursor/token cursor))
 
 (declare from-text)
-
-(defn move-prev-char
-  [{:keys [cursor/column] :as cursor}]
-  (if (zero? column)
-    (move-relative cursor -1 0)
-    (move-relative cursor 0 -1)))
 
 (defn insert-text
   "Insert `text` starting at `start-pos`, then move the cursor to `finish-pos`."
@@ -220,7 +254,7 @@ beginning of the line."
         start-offset (:cursor/column-offset cursor)
         start-token  (:cursor/token cursor)
         start-id     (:db/id start-token)
-        start-slice  (.substring ^String (:token/value start-token) 0 start-offset)]
+        start-slice  (.substring (:token/value start-token) 0 start-offset)]
     (loop [{:keys [cursor/token] :as cursor} cursor
            length                            (- (token-length token) start-offset)
            retractions                       []]
@@ -228,12 +262,12 @@ beginning of the line."
         (let [end-offset   (- (token-length token) (- length n-chars))
               end-token    (:cursor/token cursor)
               end-id       (:db/id end-token)
-              end-slice    (.substring ^String (:token/value end-token) end-offset)
+              end-slice    (.substring (:token/value end-token) end-offset)
               before-first (:token/prev-token start-token)
               after-last   (:token/next-token end-token)
               tokens       (parse-tokens (str start-slice end-slice)
                                          (list start-id end-id))]
-          (-> cursor
+           (-> cursor
               (move start)
               (move-prev-char)
               (ic/transact (if (empty? tokens)

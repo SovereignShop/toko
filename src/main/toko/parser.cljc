@@ -11,7 +11,7 @@
 (def token-parser
   (insta/parser
    "sentence = token*
-    <token> = whitespace | number | keyword | symbol | open-container | close-container | quote | newline
+    <token> = whitespace | number | float | keyword | symbol | open-container | close-container | quote | newline
     quote = #'\\''
     newline = #'[\\n]'
     whitespace = #'[ ,]+'
@@ -20,6 +20,7 @@
     symbol = #'[^:\n\\s,\\(\\[\\{\\)\\}\\]0-9][^\n\\s,\\(\\[\\{\\)\\}\\]]*'
     open-container = #'[\\(\\[\\{]'
     close-container = #'[\\)\\}\\]]'
+    float = #'[0-9]+[.][0-9]*'
     <digit> = #'[0-9]+'
    "))
 

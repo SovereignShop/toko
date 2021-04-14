@@ -13,7 +13,7 @@
   #?(:clj (:import
            [datascript.impl.entity Entity])))
 
-(declare cursor?)
+(declare cursor? join-tokens parse-tokens)
 
 (defprotocol ICursor
   (to-facts [this] "Returns accumulated facts")
@@ -29,6 +29,23 @@
 
           :cljs (-lookup entity k))
        not-found)))
+
+(defn- join-tokens
+  "Join left of token `b` to right of token `a`. When joining, token `b` might unify
+  with token `a`, resulting one fewer tokens in the resulting token sequence.
+  For example, joining a whitespace token with a whiteapce token results in
+  a single whitespace token."
+  [a b]
+  (let [[l r] (parse-tokens (str (:token/value a)
+                                 (:token/value b))
+                            (list (:db/id a) (:db/id b)))
+        nxt-token (:token/next-token b)]
+    (if (and nxt-token (nil? r))
+      [[:db/retractEntity (:db/id b)]
+       (assoc l :token/next-token (:db/id nxt-token))
+       [:db/add (:db/id nxt-token) :token/prev-token-test-test (:db/id l)]]
+      [[:db/add (:db/id a) :token/next-token (:db/id b)]
+       [:db/add (:db/id b) :token/prev-token-test-test (:db/id a)]])))
 
 (deftype Cursor [id entity cache facts id-gen]
   #?@(:clj
@@ -102,7 +119,7 @@
        (-contains-key? [e k] (or (-> cache (get id) (contains? k)) (contains? entity k)))])
 
   ICursor
-  (to-facts [_]
+  (to-facts [this]
     (into facts
           (for [[id ent] cache]
             (into {:db/id id}
