@@ -1,12 +1,5 @@
 (ns toko.core
-  "Cursor-related functions. The cursor points at a token, and
-  tracks information about forms as it is moved. It essentially constintutes
-  zipper over clojure forms.
-
-  Constraints:
-  - Cursor is either: (1) at
-
-  "
+  "Core cursor functions."
   (:require
    [toko.impl.cursor :as ic]
    [toko.utils :refer [newline-token? token-length]]
