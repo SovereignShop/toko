@@ -182,7 +182,7 @@ beginning of the line."
 
 (defn move-prev-char
   [{:keys [cursor/column cursor/column-offset cursor/line] :as cursor}]
-  (if (zero? column)
+  (if (zero? (+ column column-offset))
     (move-relative cursor -1 0)
     (move-relative cursor 0 -1)))
 
@@ -268,18 +268,18 @@ beginning of the line."
               tokens       (parse-tokens (str start-slice end-slice)
                                          (list start-id end-id))]
            (-> cursor
-              (move start)
-              (move-prev-char)
-              (ic/transact (if (empty? tokens)
-                             (cond-> (conj retractions [:db/retractEntity end-id])
-                               (and before-first after-last) (into (join-tokens before-first after-last)))
-                             (let [first-token (first tokens)
-                                   last-token  (last tokens)]
-                               (cond-> (into [] (remove (comp (set [(:db/id first-token) (:db/id last-token)]) second)) retractions)
-                                 before-first (conj (assoc first-token :token/prev-token (:db/id before-first)))
-                                 after-last   (conj (assoc last-token :token/next-token (:db/id after-last)))
-                                 true         (into (map #(dissoc % :token/value) tokens))))))
-              (move finish-pos)))
+               (move start)
+               (move-prev-char)
+               (ic/transact (if (empty? tokens)
+                              (cond-> (conj retractions [:db/retractEntity end-id])
+                                (and before-first after-last) (into (join-tokens before-first after-last)))
+                              (let [first-token (first tokens)
+                                    last-token  (last tokens)]
+                                (cond-> (into [] (remove (comp (set [(:db/id first-token) (:db/id last-token)]) second)) retractions)
+                                  before-first (conj (assoc first-token :token/prev-token (:db/id before-first)))
+                                  after-last   (conj (assoc last-token :token/next-token (:db/id after-last)))
+                                  true         (into (map #(dissoc % :token/value) tokens))))))
+               (move finish-pos)))
         (let [nxt (next-token cursor)]
           (recur nxt
                  (+ length (token-length (:cursor/token nxt)))
