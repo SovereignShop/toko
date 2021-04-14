@@ -1,7 +1,7 @@
 (ns toko.adapters.codemirror
   "Adapter to use with Codemirror editor."
   (:require
-   [toko.cursor :as curs]))
+   [toko.core :as curs]))
 
 (defn on-change
   "Apply a change to the model."
