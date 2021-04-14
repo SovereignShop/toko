@@ -1,8 +1,8 @@
-(ns recurs.reader
+(ns toko.reader
   "Token level reader."
   (:require
    [sci.core :as sci]
-   [recurs.utils
+   [toko.utils
     :refer [whitespace-token?]])
   #?(:cljs
      (:import [goog.string StringBuffer])))

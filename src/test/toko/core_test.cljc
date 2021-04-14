@@ -1,15 +1,15 @@
-(ns recurs.core-test
+(ns toko.core-test
   (:require
    #?@(:clj [[clojure.test :as t]
-             [recurs.core :as curs]
-             [recurs.impl.cursor :as ic]
-             [recurs.utils :as ut]
-             [recurs.test-utils :as tu]]
+             [toko.core :as curs]
+             [toko.impl.cursor :as ic]
+             [toko.utils :as ut]
+             [toko.test-utils :as tu]]
        :cljs [[cljs.test :as t :include-macros true]
-              [recurs.cursor :as curs]
-              [recurs.impl.cursor :as ic]
-              [recurs.utils :as ut]
-              [recurs.test-utils :as tu :include-macros true]])))
+              [toko.cursor :as curs]
+              [toko.impl.cursor :as ic]
+              [toko.utils :as ut]
+              [toko.test-utils :as tu :include-macros true]])))
 
 (t/deftest test-cursor-next-and-prev-token
   (t/is (= "1" (-> "1 1"

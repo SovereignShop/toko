@@ -1,6 +1,6 @@
-(ns recurs.utils
+(ns toko.utils
   (:require
-   [recurs.impl.cursor :refer [cursor?]]
+   [toko.impl.cursor :refer [cursor?]]
    [datascript.impl.entity :refer [entity?]]))
 
 (defn open-container? [token]

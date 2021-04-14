@@ -1,4 +1,4 @@
-(ns recurs.schema)
+(ns toko.schema)
 
 (def schema
   {:token/first-child     {:db/type :db.type/ref}

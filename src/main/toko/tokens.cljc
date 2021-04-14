@@ -1,4 +1,4 @@
-(ns recurs.tokens
+(ns toko.tokens
   (:refer-clojure :exclude [newline keyword symbol]))
 
 (defn whitespace [value]

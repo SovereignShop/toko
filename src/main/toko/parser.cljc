@@ -1,10 +1,10 @@
-(ns recurs.parser
-  #?(:cljs (:require-macros [recurs.macros :refer [interlace]]))
+(ns toko.parser
+  #?(:cljs (:require-macros [toko.macros :refer [interlace]]))
   (:require
-   [recurs.tokens :as tokens]
+   [toko.tokens :as tokens]
    [clojure.walk :refer [walk postwalk]]
-   [recurs.utils :refer [seq-tokens]]
-   #?(:clj [recurs.macros :refer [interlace]])
+   [toko.utils :refer [seq-tokens]]
+   #?(:clj [toko.macros :refer [interlace]])
    [instaparse.core :as insta]
    #?@(:cljs [[ cljs.reader :refer [read-string]]])))
 

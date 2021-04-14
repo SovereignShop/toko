@@ -1,19 +1,19 @@
-(ns recurs.test-utils
+(ns toko.test-utils
   (:require
    #?@(:clj [[clojure.test :as t]
              [datascript.core :as d]
-             [recurs.schema :refer [schema]]
-             [recurs.impl.cursor :as ic]
-             [recurs.utils :as ut]
-             [recurs.cursor :as curs]
-             [recurs.parser :as parser]]
+             [toko.schema :refer [schema]]
+             [toko.impl.cursor :as ic]
+             [toko.utils :as ut]
+             [toko.core :as curs]
+             [toko.parser :as parser]]
        :cljs [[cljs.test :as t :include-macros true]
               [datascript.core :as d]
-              [recurs.schema :refer [schema]]
-              [recurs.utils :as ut]
-              [recurs.impl.cursor :as ic]
-              [recurs.cursor :as curs]
-              [recurs.parser :as parser]])))
+              [toko.schema :refer [schema]]
+              [toko.utils :as ut]
+              [toko.impl.cursor :as ic]
+              [toko.cursor :as curs]
+              [toko.parser :as parser]])))
 
 (defn token-values
   [curs]

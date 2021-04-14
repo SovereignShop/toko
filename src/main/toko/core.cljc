@@ -1,4 +1,4 @@
-(ns recurs.core
+(ns toko.core
   "Cursor-related functions. The cursor points at a token, and
   tracks information about forms as it is moved. It essentially constintutes
   zipper over clojure forms.
@@ -8,10 +8,10 @@
 
   "
   (:require
-   [recurs.impl.cursor :as ic]
-   [recurs.utils :refer [newline-token? token-length]]
-   [recurs.reader :as rdr]
-   [recurs.parser :refer [parse-tokens]]))
+   [toko.impl.cursor :as ic]
+   [toko.utils :refer [newline-token? token-length]]
+   [toko.reader :as rdr]
+   [toko.parser :refer [parse-tokens]]))
 
 (defn- past-ch?
   "True if cursor token is past `ch`"

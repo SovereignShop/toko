@@ -1,4 +1,4 @@
-(ns recurs.macros)
+(ns toko.macros)
 
 (defmacro interlace
   "Transform a vector, binding to neighbors of each element. Takes a

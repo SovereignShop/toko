@@ -1,7 +1,7 @@
-(ns recurs.plugins.path-tracking
+(ns toko.plugins.path-tracking
   "Plugin to track the path to the current cursor token."
   (:require
-   [recurs.utils :as util]))
+   [toko.utils :as util]))
 
 (derive ::ctx ::list)
 (derive ::ctx ::vector)

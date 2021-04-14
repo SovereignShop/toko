@@ -1,4 +1,4 @@
-(ns ^:no-doc recurs.impl.cursor
+(ns ^:no-doc toko.impl.cursor
   "Extend the Entity namespace to support a customized Cursor entity that supports
   Apply tranctions to the cursor and accumulating transaction data results.
 

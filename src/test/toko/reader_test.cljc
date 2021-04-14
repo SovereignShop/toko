@@ -1,11 +1,11 @@
-(ns recurs.reader-test
+(ns toko.reader-test
   (:require
    #?@(:clj [[clojure.test :as t]
-             [recurs.reader :as r]
-             [recurs.test-utils :as tu]]
+             [toko.reader :as r]
+             [toko.test-utils :as tu]]
        :cljs [[cljs.test :as t :include-macros true]
-              [recurs.test-utils :as tu]
-              [recurs.reader :as r]])))
+              [toko.test-utils :as tu]
+              [toko.reader :as r]])))
 
 (t/deftest test-read-tokens
   (t/is (= '(+ 1 2)
