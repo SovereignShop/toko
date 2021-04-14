@@ -141,9 +141,9 @@ beginning of the line."
           (pos? line-offset)  (search-line-forward cursor target-line)
           :else               (search-line-backward cursor target-line))))
 
-(defn- splice [s n x]
+(defn- splice [^String s n ^String x]
   #?(:cljs (str (.slice s 0 n) x (.slice s n))
-     :clj (str (.substring s 0 n) x (.substring s n))))
+     :clj (str (.substring s 0 n) x  (.substring s n))))
 
 (defn move-relative
   [{:keys [cursor/line cursor/column cursor/column-offset] :as cursor} line-delta col-delta]
@@ -227,7 +227,7 @@ beginning of the line."
         start-offset (:cursor/column-offset cursor)
         start-token  (:cursor/token cursor)
         start-id     (:db/id start-token)
-        start-slice  (.substring (:token/value start-token) 0 start-offset)]
+        start-slice  (.substring ^String (:token/value start-token) 0 start-offset)]
     (loop [{:keys [cursor/token] :as cursor} cursor
            length                            (- (token-length token) start-offset)
            retractions                       []]
@@ -235,7 +235,7 @@ beginning of the line."
         (let [end-offset   (- (token-length token) (- length n-chars))
               end-token    (:cursor/token cursor)
               end-id       (:db/id end-token)
-              end-slice    (.substring (:token/value end-token) end-offset)
+              end-slice    (.substring ^String (:token/value end-token) end-offset)
               before-first (:token/prev-token start-token)
               after-last   (:token/next-token end-token)
               tokens       (parse-tokens (str start-slice end-slice)
