@@ -83,7 +83,7 @@
   ([token]
    (read-tokens (sci/init {}) token))
   ([ctx token]
-   (sci/parse-string ctx (tokens->string token {:meta? true}))))
+   (sci/parse-string ctx (second (tokens->string token {:meta? true})))))
 
 (defn eval-all
   "Evals tokens until eof is reached."

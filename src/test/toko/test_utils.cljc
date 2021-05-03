@@ -12,7 +12,7 @@
               [toko.schema :refer [schema]]
               [toko.utils :as ut]
               [toko.impl.cursor :as ic]
-              [toko.cursor :as curs]
+              [toko.core :as curs]
               [toko.parser :as parser]])))
 
 (defn token-values

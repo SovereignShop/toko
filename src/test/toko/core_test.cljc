@@ -6,7 +6,7 @@
              [toko.utils :as ut]
              [toko.test-utils :as tu]]
        :cljs [[cljs.test :as t :include-macros true]
-              [toko.cursor :as curs]
+              [toko.core :as curs]
               [toko.impl.cursor :as ic]
               [toko.utils :as ut]
               [toko.test-utils :as tu :include-macros true]])))

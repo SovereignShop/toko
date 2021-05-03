@@ -12,7 +12,6 @@
   #?(:cljs
      (:import [goog.string StringBuffer])))
 
-
 (defn past-current-ch?
   "True if cursor token is past `col`"
   [{:keys [cursor/column cursor/token]} col]
