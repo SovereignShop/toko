@@ -8,16 +8,18 @@
    [instaparse.core :as insta]
    #?@(:cljs [[ cljs.reader :refer [read-string]]])))
 
+
 (def token-parser
   (insta/parser
    "sentence = token*
-    <token> = whitespace | number | float | keyword | symbol | open-container | close-container | quote | newline
-    quote = #'\\''
-    newline = #'[\\n]'
-    whitespace = #'[ ,]+'
+    <token> = string | whitespace | number | float | keyword | symbol | open-container | close-container | quote | newline
+    string = #'\"(?:.)*\"'
+    quote = !string #'\\''
+    newline = !string #'[\\n]'
+    whitespace = !string #'[ ,]+'
     number = digit+
     keyword = #':[^\n\\s,\\(\\[\\{\\)\\}\\]]*'
-    symbol = #'[^:\n\\s,\\(\\[\\{\\)\\}\\]0-9][^\n\\s,\\(\\[\\{\\)\\}\\]]*'
+    symbol = !string #'[^:\n\\s,\\(\\[\\{\\)\\}\\]0-9][^\n\\s,\\(\\[\\{\\)\\}\\]]*'
     open-container = #'[\\(\\[\\{]'
     close-container = #'[\\)\\}\\]]'
     float = #'[0-9]+[.][0-9]*'
@@ -73,6 +75,8 @@
 (comment
 
   (parse-string "\n")
+
+  (parse-string "\"\" ")
 
 
   )

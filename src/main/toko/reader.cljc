@@ -50,11 +50,51 @@
               (:token/next-token token)
               opts)))))
 
-(defn- read-next
+(defn reverse-tokens->string
+  ([root-token]
+   (reverse-tokens->string 0 (list) root-token {:meta? false}))
+  ([root-token opts]
+   (reverse-tokens->string 0 (list) root-token opts))
+  ([stack-depth sb token {:keys [meta?] :as opts}]
+   (if (and (pos? (count sb))
+            (zero? stack-depth))
+     [token (apply str sb)]
+     (case (:token/type token)
+       :open-container
+       (recur (dec stack-depth)
+              (cons (:token/value token) sb)
+              (:token/next-token token)
+              opts)
+
+       :close-container
+       (recur (inc stack-depth)
+              (cons (if (and meta? (meta-type? token))
+                      (token->string-with-meta token)
+                      (:token/value token))
+                    sb)
+              (:token/prev-token token)
+              opts)
+
+       (recur stack-depth
+              (cons (if (and meta? (meta-type? token))
+                      (token->string-with-meta token)
+                      (:token/value token))
+                    sb)
+              (:token/prev-token token)
+              opts)))))
+
+(defn read-next
   ([token]
    (read-next (sci/init {}) token))
   ([ctx token]
    (let [[token s] (tokens->string token)]
+     [token (sci/parse-string ctx s)])))
+
+(defn read-last
+  ([token]
+   (read-last (sci/init {}) token))
+  ([ctx token]
+   (let [[token s] (reverse-tokens->string token)]
      [token (sci/parse-string ctx s)])))
 
 (defn read-first
@@ -67,6 +107,12 @@
   [token]
   (if (whitespace-token? token)
     (recur (:token/next-token token))
+    token))
+
+(defn rstrip-whitespace
+  [token]
+  (if (whitespace-token? token)
+    (recur (:token/prev-token token))
     token))
 
 (defn read-all
@@ -84,6 +130,37 @@
    (read-tokens (sci/init {}) token))
   ([ctx token]
    (sci/parse-string ctx (second (tokens->string token {:meta? true})))))
+
+(defn read-tokens-reverse
+  "Takes a sequences of tokens and returns a form."
+  ([token]
+   (read-tokens-reverse (sci/init {}) token))
+  ([ctx token]
+   (sci/parse-string ctx (second (reverse-tokens->string token {:meta? true})))))
+
+(defn eval-next
+  ([token]
+   (let [ctx (sci/init {})]
+     (sci/eval-form ctx (second (read-next ctx token)))))
+  ([ctx token]
+   (sci/eval-form ctx (second (read-next ctx token)))))
+
+(defn eval-last
+  ([token]
+   (let [ctx (sci/init {})]
+     (sci/eval-form ctx (read-tokens-reverse ctx token))))
+  ([ctx token]
+   (sci/eval-form ctx (read-tokens-reverse ctx token))))
+
+(defn eval-token
+  ([cursor]
+   (eval-token (sci/init {}) cursor))
+  ([ctx {:keys [cursor/token]}]
+   (let [token (rstrip-whitespace token)]
+     (case (:token/type token)
+       :close-container
+       (eval-last ctx token)
+       (eval-next ctx token)))))
 
 (defn eval-all
   "Evals tokens until eof is reached."
