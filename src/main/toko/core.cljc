@@ -147,7 +147,8 @@ beginning of the line."
 (defn goto-nearest-token
   "Search backward/forward, stoping at token nearest `column` on line."
   [cursor column]
-  (let [curs (if (past-current-ch? cursor column)
+  (let [curs (if (and (:cursor/token cursor)
+                      (past-current-ch? cursor column))
                (or (search-ch-forward cursor column) cursor)
                (or (search-ch-backward cursor column) cursor))]
     (assoc curs :cursor/column-offset (- column (:cursor/column curs)))))
@@ -319,4 +320,7 @@ beginning of the line."
 (defn to-text
   "Concatenate token strings together starting form the current cursor position."
   [curs]
-  (-> curs :cursor/token (rdr/tokens->string {:meta? false}) second))
+  (if-let [token (:cursor/token curs)]
+    (-> token (rdr/tokens->string {:meta? false}) second)
+
+    ""))
