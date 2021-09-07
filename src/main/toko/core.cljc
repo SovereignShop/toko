@@ -164,7 +164,8 @@ beginning of the line."
 (defn goto-file-beginning
   "Move cursor to start of file."
   [cursor]
-  (if (at-file-beginning? cursor)
+  (if (or (nil? (:cursor/token cursor))
+          (at-file-beginning? cursor))
     cursor
     (recur (prev-token cursor))))
 
@@ -322,5 +323,13 @@ beginning of the line."
   [curs]
   (if-let [token (:cursor/token curs)]
     (-> token (rdr/tokens->string {:meta? false}) second)
-
     ""))
+
+(defn ->string
+  "Temporary"
+  [curs]
+  (loop [ret (StringBuffer.)
+         token (:cursor/token curs)]
+    (if (nil? token)
+      (str ret)
+      (recur (.append ret (:token/value token)) (:token/next-token token)))))
