@@ -63,7 +63,7 @@
        :open-container
        (recur (dec stack-depth)
               (cons (:token/value token) sb)
-              (:token/next-token token)
+              (:token/prev-token token)
               opts)
 
        :close-container

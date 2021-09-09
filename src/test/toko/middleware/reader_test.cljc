@@ -41,6 +41,12 @@
            (-> "(+ 1 2)"
                (tu/string->cursor)
                (curs/move [0 6])
+               (rdr/read-form))))
+
+  (t/is (= '(+ 1 (+ 2 3))
+           (-> "(+ 1 (+ 2 3))"
+               (tu/string->cursor)
+               (curs/move [0 12])
                (rdr/read-form)))))
 
 (t/deftest test-eval-token
