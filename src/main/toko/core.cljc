@@ -37,7 +37,6 @@ beginning of the line."
         (recur (+ ret (token-length token))
                (:token/prev-token token)))))
 
-
 (defn token-value [cursor]
   (-> cursor :cursor/token :token/value))
 
@@ -182,7 +181,7 @@ beginning of the line."
   "Join left of token `b` to right of token `a`. When joining, token `b` might unify
   with token `a`, resulting one fewer tokens in the resulting token sequence.
 
-  For example, joining a whitespace token with a whiteapce token results in
+  For example, joining a whitespace token with a whitespace token results in
   a single whitespace token."
   [a b]
   (let [[l r] (parse-tokens (str (:token/value a)
