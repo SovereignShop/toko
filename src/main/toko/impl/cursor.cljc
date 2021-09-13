@@ -1,11 +1,10 @@
 (ns ^:no-doc toko.impl.cursor
-  "Extend the Entity namespace to support a customized Cursor entity that supports
-  Apply tranctions to the cursor and accumulating transaction data results.
+  "Extend the Entity namespace to support a customized Cursor entity that is
+  reducible and accumulates facts during reduction (to be applied in one transaction
+  upon completion).
 
-  The goal is to have functions from Cursor -> Cursor that accumulates facts sort of
-  monadically. The trouble is we can't extend the Entity type to do this. We also
-  can't define our own that that datascript treats as a Entity. So we can't have a thing
-  that is an entity to Datascript. Maybe extend it to IAssociatve? Isn't working out.k"
+  The goal is to have functions from Cursor -> Cursor without requiring a transaction
+  for every function in the monadic chain, which would be prohibitively costly."
   (:refer-clojure :exclude [flush])
   (:require [#?(:cljs cljs.core :clj clojure.core) :as c]
             [datascript.impl.entity :as ie]

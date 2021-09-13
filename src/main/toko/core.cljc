@@ -41,14 +41,14 @@ beginning of the line."
 (defn token-value [cursor]
   (-> cursor :cursor/token :token/value))
 
-(defn next-token-newline
+(defn- next-token-newline
   "Steps the cursor over a newline form."
   [cursor]
   (-> cursor
       (update :cursor/line inc)
       (assoc :cursor/column -1)))
 
-(defn prev-token-newline
+(defn- prev-token-newline
   "Steps the cursor over a newline token."
   [cursor]
   (-> cursor
@@ -75,21 +75,6 @@ beginning of the line."
         true                       (update :cursor/column - delta)
         (newline-token? prv-token) (prev-token-newline)))))
 
-(defn walk-file [cursor]
-  (take-while (complement nil?) (iterate next-token cursor)))
-
-(defn prev-line
-  [{:keys [cursor/token] :as cursor}]
-  (if (newline-token? token)
-    cursor
-    (recur (prev-token cursor))))
-
-(defn next-line
-  [{:keys [cursor/token] :as cursor}]
-  (if (newline-token? token)
-    cursor
-    (recur (next-token cursor))))
-
 (defn search-line-forward
   "Move the cursor forward, stoppping when it minimizes the line offset
   or get to end of file."
@@ -109,8 +94,7 @@ beginning of the line."
       (recur nxt))))
 
 (defn search-line-backward
-  "Move the cursor backward, stopping when it minimizes the line offset
-  or gets to beginning of file."
+  "Move the cursor backward, stopping when it reaches `target-line`."
   [{:keys [cursor/line] :as cursor} target-line]
   (let [line-offset (- target-line line)]
     (if (zero? line-offset)
@@ -120,7 +104,7 @@ beginning of the line."
         cursor))))
 
 (defn search-ch-forward
-  "Move cursor forward until a token is reached that minimizes the column/line offset"
+  "Move cursor forward, stopping when `column` is reached."
   ([cursor column]
    (when cursor
      (if (past-current-ch? cursor column)
@@ -131,7 +115,7 @@ beginning of the line."
        cursor))))
 
 (defn search-ch-backward
-  "Move cursor backward until at `ch` is reached."
+  "Move cursor backward, stopping when `column` is reached."
   ([cursor column]
    (when cursor
      (if (before-current-ch? cursor column)
