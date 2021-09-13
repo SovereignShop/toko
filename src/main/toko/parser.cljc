@@ -12,13 +12,14 @@
 (def token-parser
   (insta/parser
    "sentence = token*
-    <token> = string | whitespace | number | float | keyword | symbol | open-container | close-container | quote | newline
+    <token> = string | whitespace | number | float | keyword | tag | open-container | close-container | symbol | quote | newline
     string = #'\"(?:.)*\"'
     quote = !string #'\\''
     newline = !string #'[\\n]'
     whitespace = !string #'[ ,]+'
     number = digit+
     keyword = #':[^\n\\s,\\(\\[\\{\\)\\}\\]]*'
+    tag = #'#[^:\n\\s,\\(\\[\\{\\)\\}\\]0-9][^\n\\s,\\(\\[\\{\\)\\}\\]]*'
     symbol = !string #'[^:\n\\s,\\(\\[\\{\\)\\}\\]0-9][^\n\\s,\\(\\[\\{\\)\\}\\]]*'
     open-container = #'[\\(\\[\\{]'
     close-container = #'[\\)\\}\\]]'
@@ -75,6 +76,8 @@
 (comment
 
   (parse-string "\n")
+
+  (parse-tokens "#js [ 1 2 3 ]")
 
   (parse-string "\"\" ")
 
