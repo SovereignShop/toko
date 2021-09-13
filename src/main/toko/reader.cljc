@@ -50,6 +50,13 @@
               (:token/next-token token)
               opts)))))
 
+(defn get-tagged-container [token]
+  (loop [prev (:token/prev-token token)
+         s ""]
+    (cond (= (:token/type prev) :tag) [token (str (:token/value prev) s)]
+          (= (:token/type prev) :whitespace) (recur prev (:token/value prev))
+          :else false)))
+
 (defn reverse-tokens->string
   ([root-token]
    (reverse-tokens->string 0 (list) root-token {:meta? false}))
@@ -58,7 +65,9 @@
   ([stack-depth sb token {:keys [meta?] :as opts}]
    (if (and (pos? (count sb))
             (zero? stack-depth))
-     [token (apply str sb)]
+     (if-let [[token s] (get-tagged-container token)]
+       [token (apply str s sb)]
+       [token (apply str sb)])
      (case (:token/type token)
        :open-container
        (recur (dec stack-depth)
