@@ -23,7 +23,7 @@
   ([root-token opts]
    (tokens->string 0 (StringBuffer.) root-token opts))
   ([stack-depth sb token {:keys [meta?] :as opts}]
-   (if (and (pos? #?(:cljs (.getLength sb)
+   (if (and (pos? #?(:cljs ^js (.getLength sb)
                      :clj (.length sb)))
             (zero? stack-depth))
      [token (str sb)]
