@@ -40,6 +40,18 @@ beginning of the line."
 (defn token-value [cursor]
   (-> cursor :cursor/token :token/value))
 
+(defn token-type [cursor]
+  (-> cursor :cursor/token :token/type))
+
+(defn column [cursor]
+  (:cursor/column cursor))
+
+(defn line [cursor]
+  (:cursor/line cursor))
+
+(defn to-facts [cursor]
+  (ic/to-facts cursor))
+
 (defn- next-token-newline
   "Steps the cursor over a newline form."
   [cursor]
@@ -73,6 +85,12 @@ beginning of the line."
         true                       (assoc :cursor/token prv-token)
         true                       (update :cursor/column - delta)
         (newline-token? prv-token) (prev-token-newline)))))
+
+(defn seq-tokens [cursor]
+  (take-while ic/cursor? (iterate next-token cursor)))
+
+(defn rseq-tokens [cursor]
+  (take-while ic/cursor? (iterate prev-token cursor)))
 
 (defn search-line-forward
   "Move the cursor forward, stoppping when it minimizes the line offset
@@ -300,6 +318,8 @@ beginning of the line."
                 :cursor/column-offset 0
                 :cursor/line-offset   0
                 :cursor/token         start-token-id})))))
+
+
 
 (defn to-text
   "Concatenate token strings together starting form the current cursor position."

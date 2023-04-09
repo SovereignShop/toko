@@ -6,16 +6,16 @@
 
 (defn on-change
   "Apply a change to the model."
-  [cursor inserted-text removed-text finish-pos from]
+  [cursor inserted-text removed-text finish-pos start-pos]
 
   (cond-> cursor
     (pos? (count inserted-text))
     (curs/insert-text inserted-text
-                      from
+                      start-pos
                       finish-pos)
 
     (pos? (count removed-text))
-    (curs/delete-text from
+    (curs/delete-text start-pos
                       finish-pos
                       (count removed-text))))
 
@@ -23,7 +23,3 @@
   "Move the cursor to a new pose"
   [cursor pos]
   (curs/move cursor pos))
-
-(defn on-eval-file
-  "Evaluate a file."
-  [ctx cursor])

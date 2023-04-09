@@ -11,6 +11,11 @@
               [toko.utils :as ut]
               [toko.test-utils :as tu :include-macros true]])))
 
+(->>
+ (tu/string->cursor " (inc    4)")
+ (ut/seq-tokens)
+ (map curs/token-value))
+
 (t/deftest test-cursor-next-and-prev-token
   (t/is (= "1" (-> "1 1"
                    (tu/string->cursor)
