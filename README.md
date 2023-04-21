@@ -27,7 +27,7 @@ Your entry point will usually be via. an adapter. Currently there's just one ada
 
 ``` clojure
 (re-posh/reg-event-ds
- ::change
+ :app.events.editor/change
  (fn reg-editor-change [db [_ cursor-id cm change]]
    (let [cm-cursor     (.getCursor cm)
          inserted-text (s/join \newline (.-text change))
@@ -40,16 +40,22 @@ Your entry point will usually be via. an adapter. Currently there's just one ada
                                                        [(.-line from) (.-ch from)]))]
      facts)))
 
+(re-posh/reg-event-ds
+ :app.events.editor/move-cursor
+ (fn reg-move [db [_ cursor-id pos]]
+   (to-facts (cm-adapter/on-move (cursor (d/entity db cursor-id))
+                                 [(.-line pos) (.-ch pos)]))))
+
 (defn add-listeners! [cm-editor cursor-id]
   (doto cm-editor
     (.on "cursorActivity"
          (fn [cm]
-           (re-posh/dispatch [:skyhook.events.editor/move-cursor cursor-id (.getCursor cm)])))
+           (re-posh/dispatch [:app.events.editor/move-cursor cursor-id (.getCursor cm)])))
 
     (.on "change"
          (fn [cm change]
            (let [pos  (.getCursor cm)]
-             (re-posh/dispatch-sync [:skyhook.events.editor/change cursor-id cm change pos]))))))
+             (re-posh/dispatch-sync [:app.events.editor/change cursor-id cm change pos]))))))
 ```
 
 A full example application will be published soon.
