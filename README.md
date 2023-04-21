@@ -4,8 +4,13 @@ Incremental tokenizer, reader, and evaluator for Clojure(Script).
 It maintains a set of tokens under arbitrary cursor movement, as well as under
 insertion and deletion of text. Tokens are stored as Datascript facts and form a
 complete partition of the text (whitespace included), making toko suitable for
-implementing automatic persistence of textual documents as facts. It uses sci 
-to read and evaluate token strings.
+implementing automatic, incremental persistence of textual documents as Datascript facts.
+It uses sci to read and evaluate token strings.
+
+It can potentially form the basis of a CRDT system, as the document is maintained as a doubly
+linked list of "ropes", allowing concurrent updates with minimal collisions. Although not implemented,
+it should be possible to efficiently map Datascript tx-data to document changes. You'd likely want each
+client to have a cursor for every other client
 
 It also supports middleware, which can be added to track additional information
 under cursor movement (depending on your parser). See the protocol specification
@@ -13,7 +18,7 @@ for more information.
 
 # Status
 
-Usable, but still a work in progress.
+Pre-alpha. Usable, but still a work in progress.
 
 # Connecting to an editor
 

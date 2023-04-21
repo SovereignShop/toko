@@ -53,10 +53,7 @@
   (take-while entity? (iterate :token/prev-token token)))
 
 (defn count-newlines [s]
-  (println "newlines:" (->> s seq (filter #(= % \newline)) count))
   (->> s seq (filter #(= % \newline)) count))
-
-(count-newlines "abc\n")
 
 (defn get-line [token]
   (->> token rseq-tokens next (map #(case (:token/type %) :newline 1 :string (count-newlines (:token/value %)) 0)) (reduce +)))
